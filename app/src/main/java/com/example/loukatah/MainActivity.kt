@@ -28,11 +28,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Main composable function for the UI layout
+ */
 @Composable
 fun FirstUI(modifier: Modifier = Modifier) {
-    var textValue by remember { mutableStateOf("") }
-    val itemsList = remember { mutableStateListOf<String>() }
-    var displayedItems by remember { mutableStateOf(itemsList.toList()) }
+    // TODO 1: Create state variables for text input and items list
+    var text by remember { mutableStateOf("") }
+    val itemList = remember { mutableStateListOf<String>() }
+    val displayedItems = remember { mutableStateListOf<String>() }
 
     Column(
         modifier = modifier
@@ -40,25 +44,29 @@ fun FirstUI(modifier: Modifier = Modifier) {
             .fillMaxSize()
     ) {
         SearchInputBar(
-            textValue = textValue,
-            onTextValueChange = { textValue = it },
+            textValue = text, // TODO 2: Connect to state
+            onTextValueChange = { text = it }, // TODO 3: Update text state
             onAddItem = {
                 if (it.isNotBlank()) {
-                    itemsList.add(it)
-                    displayedItems = itemsList.toList()
-                    textValue = ""
+                    itemList.add(it) // إضافة العنصر إلى القائمة
+                    displayedItems.add(it) // تحديث القائمة المعروضة
+                    text = "" // مسح حقل الإدخال بعد الإضافة
                 }
             },
-            onSearch = {
-                displayedItems = if (it.isBlank()) itemsList.toList() else itemsList.filter { item ->
-                    item.contains(it, ignoreCase = true)
-                }
+            onSearch = { query ->
+                displayedItems.clear()
+                displayedItems.addAll(itemList.filter { it.contains(query, ignoreCase = true) }) // تصفية القائمة
             }
         )
+
+        // TODO 6: Display list of items using CardsList composable
         CardsList(displayedItems)
     }
 }
 
+/**
+ * Composable for search and input controls
+ */
 @Composable
 fun SearchInputBar(
     textValue: String,
@@ -80,19 +88,25 @@ fun SearchInputBar(
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Button(onClick = { onAddItem(textValue) }) {
+            Button(onClick = { onAddItem(textValue) }) { // TODO 7: Handle add button click
                 Text("Add")
             }
-            Button(onClick = { onSearch(textValue) }) {
+
+            Button(onClick = { onSearch(textValue) }) { // TODO 8: Handle search button click
                 Text("Search")
             }
         }
     }
 }
 
+/**
+ * Composable for displaying a list of items in cards
+ */
 @Composable
 fun CardsList(displayedItems: List<String>) {
+    // TODO 9: Implement LazyColumn to display items
     LazyColumn(modifier = Modifier.fillMaxSize()) {
+        // TODO 10: Create cards for each item in the list
         items(displayedItems) { item ->
             Card(
                 modifier = Modifier
@@ -100,16 +114,8 @@ fun CardsList(displayedItems: List<String>) {
                     .padding(vertical = 4.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Text(text = item, modifier = Modifier.padding(16.dp))
+                Text(text = item, modifier = Modifier.padding(16.dp)) // عرض العنصر الحقيقي
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewUI() {
-    LoukatahTheme {
-        FirstUI()
     }
 }
